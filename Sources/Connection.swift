@@ -182,7 +182,7 @@ public class Connection: SQL.Connection {
         try execute("RELEASE SAVEPOINT $1", parameters: name)
     }
     
-    public func fileExecute(path: String) throws -> Result {
+    public func executeFromFile(atPath path: String) throws -> Result {
         
         let file = try File(path: path, mode: .Read)
         let data = try file.read()
