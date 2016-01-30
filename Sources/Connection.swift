@@ -25,6 +25,7 @@
 import CLibpq
 import SQL
 import Core
+import Foundation
 
 public class Connection: SQL.Connection {
     public enum Error: ErrorType {
@@ -181,7 +182,18 @@ public class Connection: SQL.Connection {
     public func releaseSavePointNamed(name: String) throws {
         try execute("RELEASE SAVEPOINT $1", parameters: name)
     }
-
+    
+    public func fileExecute(path: String, encoding: NSStringEncoding = NSUTF8StringEncoding) throws -> Result {
+        
+        let statement = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
+        
+        return try Result(
+            PQexec(connection,
+                statement
+            )
+        )
+    }
+    
     public func execute(statement: String, parameters: [SQLParameterConvertible]) throws -> Result {
         let values = UnsafeMutablePointer<UnsafePointer<Int8>>.alloc(parameters.count)
 
