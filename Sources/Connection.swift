@@ -25,7 +25,6 @@
 import CLibpq
 import SQL
 import Core
-import Foundation
 
 public class Connection: SQL.Connection {
     public enum Error: ErrorType {
@@ -183,9 +182,14 @@ public class Connection: SQL.Connection {
         try execute("RELEASE SAVEPOINT $1", parameters: name)
     }
     
-    public func fileExecute(path: String, encoding: NSStringEncoding = NSUTF8StringEncoding) throws -> Result {
+    public func fileExecute(path: String) throws -> Result {
         
-        let statement = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
+        let file = try File(path: path, mode: .Read)
+        let data = try file.read()
+        guard let statement = String(data: data.bytes) else {
+            throw Error.ExecutionError(reason: "Impossible to read the file content")
+        }
+        
         
         return try Result(
             PQexec(connection,
